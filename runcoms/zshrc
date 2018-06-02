@@ -12,3 +12,4 @@ fi
 
 # Customize to your needs...
 [ -f ~/.zalias ] && source ~/.zalias
+[ -f ~/.zcustom ] && source ~/.zcustom

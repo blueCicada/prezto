@@ -1,0 +1,163 @@
+# 'fadey' : based on the 'fade' prompt
+# bluecicada
+
+# Generic colour fade-bar prompt theme from bashprompt
+# Created by Jim Foltz <aa204@acorn.net>
+# Changed by Spidey 08/06
+# Converted to zsh prompt theme by <adam@spiers.net>
+
+prompt_fadey_help () {
+  cat <<EOH
+This prompt is color-scheme-able.  You can invoke it thus:
+
+  prompt fadey [<fadey-bar-and-cwd> [<userhost> [<date>]]] 
+
+where the parameters are the colors for the fadey-bar and current
+working directory, user@host text, and date text respectively.  The
+default colors are green, white, and white.  This theme works best
+with a dark background.
+
+Recommended fonts for this theme: either UTF-8, or nexus or vga or similar.
+If you don't have any of these, the 8-bit characters will probably look
+stupid.
+EOH
+}
+
+# emacs shell-script mode gets confused with ' in heredoc above
+
+prompt_fadey_setup () {
+  local fadeybar_cwd=${1:-'green'}
+  local userhost=${2:-'white'}
+  local date=${3:-'white'}
+
+  local -A schars
+  autoload -Uz prompt_special_chars
+  prompt_special_chars
+
+  autoload -Uz vcs_info
+  #precmd() { vcs_info }
+  
+  # Format the vcs_info_msg_0_ variable
+  zstyle ':vcs_info:*' check-for-changes true
+  zstyle ':vcs_info:*' unstagedstr '%F{214}'
+  zstyle ':vcs_info:git:*' formats '%u【枝%b】'
+
+  # %v - virtualenv name.
+  #zstyle ':prezto:module:python:info:virtualenv' format 'virtualenv:%v'
+  zstyle ':python:info:virtualenv' format 'virtualenv:%v'
+   
+  # Set up the prompt (with git branch name)
+  #setopt PROMPT_SUBST
+  #PROMPT='%n in ${PWD/#$HOME/~} ${vcs_info_msg_0_} > '
+
+  #PS1="yey ${vcs_info_msg_0_}%F{$fadeybar_cwd}%B%K{$fadeybar_cwd}$schars[333]$schars[262]$schars[261]$schars[260]%F{$userhost}%K{$fadeybar_cwd}%B%n@%m%b%F{$fadeybar_cwd}%K{black}$schars[333]$schars[262]$schars[261]$schars[260]%F{$date}%K{black}%B %D{%a %b %d} %D{%I:%M:%S%P} $prompt_newline%F{$fadeybar_cwd}%K{black}%B%~/%b%k%f "
+  vcs_info
+  #if [ -z '${vcs_info_msg_0_}' ]
+  if [ ${#vcs_info_msg_0_} -eq 0 ]
+  then
+    #blend='022'
+    blend=$fadeybar_cwd
+  else
+    blend='037'  # fade git info colours into rest of prompt
+  fi
+
+  nichi=('㏠' '㏡' '㏢' '㏣' '㏤' '㏥' '㏦' '㏧' '㏨' '㏩' '㏪' '㏫' '㏬' '㏭' '㏮' '㏯' '㏰' '㏱' '㏲' '㏳' '㏴' '㏵' '㏶' '㏷' '㏸' '㏹' '㏺' '㏻' '㏼' '㏽' '㏾')
+  youbi_colo=("w" "r" "c" "222" "220" "094" "011")
+  #kyou=$nichi[`date +%d`]（"%F{$youbi_colo[`date +%u`]}"`LC_ALL=ja_JP.UTF-8 date +%a`"%F{249}"）
+  #jp_date=`date +"%-m月"`$kyou
+
+  function jp_date() {
+    kyou=$nichi[`date +%d`]（"%F{$youbi_colo[`date +%u`]}"`LC_ALL=ja_JP.UTF-8 date +%a`"%F{249}"）
+    echo `date +"%-m月"`$kyou
+  }
+
+  #PS1='%K{cyan}%F{226}${vcs_info_msg_0_}'"%F{$blend}%B%K{$fadeybar_cwd}$schars[333]$schars[262]$schars[261]$schars[260]%F{$userhost}%K{$fadeybar_cwd}%B%n@%m%b%F{$fadeybar_cwd}%K{black}$schars[333]$schars[262]$schars[261]$schars[260]%F{$date}%K{black}%B %F{249}`jp_date`%F{white}%D{%I:%M:%S%P} $prompt_newline%F{$fadeybar_cwd}%K{black}%B%~/%b%k%f "
+ 
+  #PS1='%K{cyan}%F{226}${vcs_info_msg_0_}'"%F{$blend}%B%K{$fadeybar_cwd}$schars[333]$schars[262]$schars[261]$schars[260]%F{$userhost}%K{$fadeybar_cwd}%B%n@%m%b%F{$fadeybar_cwd}%K{black}$schars[333]$schars[262]$schars[261]$schars[260]%F{$date}%K{black}%B %F{249}`date +"%-m月"`$nichi[`date +%d`]（"%F{$youbi_colo[`date +%u`]}"`LC_ALL=ja_JP.UTF-8 date +%a`"%F{249}"）%F{white}%D{%H:%M:%S} $prompt_newline%F{$fadeybar_cwd}%K{black}%B%~/%b%k%f "
+ 
+  #PS1='%K{cyan}%F{226}${vcs_info_msg_0_}'"%F{$blend}%B%K{$fadeybar_cwd}$schars[333]$schars[262]$schars[261]$schars[260]%F{$userhost}%K{$fadeybar_cwd}%B%n@%m%b%F{$fadeybar_cwd}%K{black}$schars[333]$schars[262]$schars[261]$schars[260]%F{$date}%K{black}%B %F{249}%D{%a %b %d}%F{w} %D{%I:%M:%S%P} $prompt_newline%F{$fadeybar_cwd}%K{black}%B%~/%b%k%f "
+
+  if [ $PIPENV_ACTIVE ]; then
+    snek="(🐍 `basename $(pipenv --where)\)`"
+  fi
+ 
+  PSA='%K{cyan}%F{226}$snek${vcs_info_msg_0_}'"%F{$blend}%B%K{$fadeybar_cwd}$schars[333]$schars[262]$schars[261]$schars[260]%F{$userhost}%K{$fadeybar_cwd}%B%n@%m%b%F{$fadeybar_cwd}%K{black}$schars[333]$schars[262]$schars[261]$schars[260]%F{$date}%K{black}%B %F{249}"
+  PSB="%F{white}%D{%H:%M:%S} $prompt_newline%F{$fadeybar_cwd}%K{black}%B%~/%b%k%f "
+  PS2="%F{$fadeybar_cwd}%K{black}$schars[333]$schars[262]$schars[261]$schars[260]%f%k>"
+
+  prompt_opts=(sp cr subst percent)
+
+  function preexec() {
+    timer=$(($(print -P %D{%s%6.})/1000))
+  }
+  
+  function precmd() {
+    vcs_info  # need this here, else it won't disappear after leaving git project
+    if [ $timer ]; then
+      now=$(($(print -P %D{%s%6.})/1000))
+      #elapsed=$(($now-$timer))
+      end_time=$(($now-$timer))
+      local hours minutes seconds remainder
+
+      if (( end_time >= 3600000 )); then
+        hours=$(( end_time / 3600000 ))
+        remainder=$(( end_time % 3600000 ))
+        minutes=$(( remainder / 60000 ))
+        seconds=$(( (end_time % 60000)/1000 ))
+        elapsed="%B%F{red}${hours}h ${minutes}m ${seconds}s%b"
+      elif (( end_time >= 60000 )); then
+        minutes=$(( end_time / 60000 ))
+        seconds=$(( (end_time % 60000)/1000 ))
+        elapsed="%B%F{yellow}${minutes}m ${seconds}s%b"
+      elif (( end_time > 10000 )); then
+        seconds=$(( end_time / 1000 ))
+        milli=$(( end_time % 1000 ))
+        elapsed="%B%F{green}${seconds}s ${milli}ms%b"
+      else
+        elapsed=%F{cyan}${end_time}ms
+      fi
+      #export RPROMPT="%F{cyan}${elapsed}ms %{$reset_color%}"
+      #export RPROMPT="${RPROMPT}%F{cyan}${elapsed}ms %{$reset_color%}"
+      #export RPROMPT='$python_info[virtualenv]${editor_info[overwrite]}%(?:: %F{1}✘ %? %f)${VIM:+" %B%F{6}V%f%b"}${_prompt_sorin_git}%F{cyan}${elapsed}ms %{$reset_color%}'
+      export RPROMPT='$python_info[virtualenv]${editor_info[overwrite]}%(?:: %F{1}✘ %? %f)${VIM:+" %B%F{6}V%f%b"}${_prompt_sorin_git}${elapsed} %{$reset_color%}'
+      #echo $RPROMPT
+      #echo $PROMPT
+      unset timer
+    fi
+    #export PS1='%K{cyan}%F{226}${vcs_info_msg_0_}'"%F{$blend}%B%K{$fadeybar_cwd}$schars[333]$schars[262]$schars[261]$schars[260]%F{$userhost}%K{$fadeybar_cwd}%B%n@%m%b%F{$fadeybar_cwd}%K{black}$schars[333]$schars[262]$schars[261]$schars[260]%F{$date}%K{black}%B %F{249}`date +"%-m月"`$nichi[`date +%d`]（"%F{$youbi_colo[`date +%u`]}"`LC_ALL=ja_JP.UTF-8 date +%a`"%F{249}"）%F{white}%D{%H:%M:%S} $prompt_newline%F{$fadeybar_cwd}%K{black}%B%~/%b%k%f $NANI"
+    #export PS1="$PS0`date +"%-m月"`$nichi[`date +%d`]（"%F{$youbi_colo[`date +%u`]}"`LC_ALL=ja_JP.UTF-8 date +%a`"%F{249}"）%F{white}%D{%H:%M:%S} $prompt_newline%F{$fadeybar_cwd}%K{black}%B%~/%b%k%f "
+
+    if [ $VIRTUAL_ENV ] && ! [ $PIPENV_ACTIVE ]; then
+      venv="<$VIRTUAL_ENV>"
+    fi
+
+    #if ! [ $PIPENV_ACTIVE ]; then
+    #  unset snek
+    #  if [ $VIRTUAL_ENV ]; then
+    #    venv="<$VIRTUAL_ENV>"
+    #  fi
+    #elif ! [ $snek ]; then
+    #  snek="(🐍 `basename $(pipenv --where)\)`"
+    #fi
+    #PS1=$venv$snek$PSA`jp_date`$PSB
+    PS1=$venv$PSA`jp_date`$PSB
+  }
+}
+
+prompt_fadey_preview () {
+  local color colors
+  colors=(red yellow green blue magenta)
+
+  if (( ! $#* )); then
+    for (( i = 1; i <= $#colors; i++ )); do
+      color=$colors[$i]
+      prompt_preview_theme fadey $color
+      print
+    done
+    prompt_preview_theme fadey white grey blue
+  else
+    prompt_preview_theme fadey "$@"
+  fi
+}
+
+prompt_fadey_setup "$@"
